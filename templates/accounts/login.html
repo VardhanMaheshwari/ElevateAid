@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElevateAid - Secure Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'accounts/css/login.css' %}">
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Form Section -->
+        <section class="form-section">
+            <form class="auth-form">
+                <div class="form-header">
+                    <h1>Welcome Back</h1>
+                    <p>Access your ElevateAid account to continue your impact</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" class="input-field" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <div style="position: relative;">
+                        <input type="password" class="input-field" id="password" name="password" required>
+                        <i class="fas fa-eye password-toggle" onclick="togglePassword('password')"></i>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Sign In</button>
+
+                <div class="auth-alt">
+                    New to ElevateAid? <a href="/register">Create account</a>
+                </div>
+            </form>
+        </section>
+
+        <!-- Graphic Section -->
+        <section class="graphic-section">
+            <!-- Add your illustration/vector graphic here -->
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <!-- Footer content from homepage -->
+        </div>
+    </footer>
+    <script src="{% static 'accounts/js/login.js' %}"></script>
+</body>
+</html>

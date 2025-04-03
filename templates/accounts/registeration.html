@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="{% static 'accounts/css/registeration.css' %}"> <!-- External CSS file -->
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>User Registration</h2>
+            <form method="POST" name='form' enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="phone">Phone Number</label>
+                <input type="text" id="phone" name="phone" required>
+
+                <label for="address">Address</label>
+                <textarea id="address" name="address" required></textarea>
+
+                <label for="user_type">User Type</label>
+                <select id="user_type" name="user_type" required>
+                    <option value="" selected disabled>Select User Type</option>
+                    <option value="beneficiary">Receiver</option>
+                    <option value="donor">Donor</option>
+                </select>
+
+                <label for="sub_type">Sub-Type</label>
+                <select id="sub_type" name="sub_type" required>
+                    <option value="" selected disabled>Select Sub-Type</option>
+                </select>
+
+                <div id="company_fields" class="hidden">
+                    <label for="ngo_college_company_id">NGO/College/Company ID</label>
+                    <input type="text" id="ngo_college_company_id" name="ngo_college_company_id">
+                </div>
+
+                <div id="company_logo" class="hidden">
+                    <label for="logo">Upload Logo</label>
+                    <input type="file" id="logo" name="logo">
+                </div>
+
+                <div id="personal_fields" class="hidden">
+                    <label for="aadhar_number">Aadhar Number</label>
+                    <input type="text" id="aadhar_number" name="aadhar_number">
+                </div>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+
+                <button type="submit">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{% static 'accounts/js/registeration.js' %}" defer></script> <!-- External JS file -->
+</body>
+</html>

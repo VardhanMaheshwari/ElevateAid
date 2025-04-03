@@ -1,0 +1,236 @@
+🔹 How to Use This Token for Future API Calls?
+After login, all API requests should include this token in the Authorization header:
+// Retrieve token from localStorage
+let token = localStorage.getItem("authToken");
+
+fetch("/api/protected-data/", {
+    method: "GET",
+    headers: {
+        "Authorization": "Token " + token // Include token in request
+    }
+})
+.then(response => response.json())
+.then(data => {
+    console.log("Protected Data:", data);
+})
+.catch(error => console.error("Error:", error));
+
+
+🔹 How to Logout?
+Add a logout function that removes the token and redirects to the login page:
+
+javascript
+Copy
+Edit
+function logout() {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userType");
+
+    alert("Logged out successfully!");
+    window.location.href = "/login/"; // Redirect to login
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### **🔹 Django Backend: API-Based Login with Token Authentication**
+Since we are using API-based authentication, we need to implement token-based authentication using Django REST Framework (`DRF`).
+
+---
+
+## **✅ Step 1: Install DRF Token Authentication**
+If you haven’t already installed DRF, run:
+```bash
+pip install djangorestframework djangorestframework-simplejwt
+```
+
+---
+
+## **✅ Step 2: Update Django `settings.py`**
+Modify your `settings.py` to enable token-based authentication:
+```python
+INSTALLED_APPS = [
+    'rest_framework',
+    'rest_framework.authtoken',  # Enables token authentication
+    'your_app',  # Replace with your app name
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
+```
+---
+
+## **✅ Step 3: Create Token at Login (`views.py`)**
+Now, modify your API login view to generate and return a **token** when a user logs in.
+
+### **📌 `views.py`**
+```python
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(["POST"])
+def api_login(request):
+    email = request.data.get("email")
+    password = request.data.get("password")
+
+    # Authenticate user
+    user = authenticate(email=email, password=password)
+    
+    if user:
+        # Generate or get existing token
+        token, created = Token.objects.get_or_create(user=user)
+        
+        return Response({
+            "success": True,
+            "message": "Login successful!",
+            "token": token.key,  # Return token to frontend
+            "user_id": user.id,
+            "user_type": user.user_type
+        })
+    else:
+        return Response({"success": False, "message": "Invalid email or password"}, status=400)
+```
+---
+
+## **✅ Step 4: Use Token for Protected APIs**
+Modify any API that needs authentication. Add `@authentication_classes` to enforce **token authentication**.
+
+### **📌 Example: A Protected API (`views.py`)**
+```python
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+
+@api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_user_details(request):
+    user = request.user
+    return Response({
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "user_type": user.user_type
+    })
+```
+
+Now, if a request does not include a valid `Token`, it will be rejected with **401 Unauthorized**.
+
+---
+
+## **✅ Step 5: Logout API (Delete Token)**
+To log out, simply delete the token.
+
+### **📌 `views.py`**
+```python
+@api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def api_logout(request):
+    request.user.auth_token.delete()  # Delete token
+    return Response({"success": True, "message": "Logged out successfully!"})
+```
+
+---
+
+## **✅ Step 6: Update `urls.py`**
+```python
+from django.urls import path
+from .views import api_login, api_logout, get_user_details
+
+urlpatterns = [
+    path("api/login/", api_login, name="api_login"),
+    path("api/logout/", api_logout, name="api_logout"),
+    path("api/user/", get_user_details, name="get_user_details"),
+]
+```
+
+---
+
+## **✅ How This Works with Frontend?**
+### **1️⃣ Login Request**
+When the user logs in, the frontend sends a `POST` request to:
+```plaintext
+/api/login/
+```
+Example Response:
+```json
+{
+    "success": true,
+    "message": "Login successful!",
+    "token": "123abc456xyz",
+    "user_id": 7,
+    "user_type": "receiver"
+}
+```
+The **frontend stores the token** in `localStorage`.
+
+---
+
+### **2️⃣ Sending Authenticated Requests**
+After login, the frontend includes this token in all API requests:
+
+```javascript
+fetch("/api/user/", {
+    method: "GET",
+    headers: {
+        "Authorization": "Token " + localStorage.getItem("authToken")
+    }
+})
+.then(response => response.json())
+.then(data => console.log("User Details:", data))
+.catch(error => console.error("Error:", error));
+```
+If the token is **missing or invalid**, the server responds with:
+```json
+{
+    "detail": "Authentication credentials were not provided."
+}
+```
+---
+
+### **3️⃣ Logout Request**
+When the user clicks logout, the frontend calls:
+
+```javascript
+fetch("/api/logout/", {
+    method: "POST",
+    headers: {
+        "Authorization": "Token " + localStorage.getItem("authToken")
+    }
+})
+.then(response => response.json())
+.then(data => {
+    localStorage.removeItem("authToken");  // Clear token
+    alert(data.message);
+    window.location.href = "/login/";  // Redirect to login page
+});
+```
+
+---
+
+## **✅ Summary**
+✔ **Login:** Generate token and send to frontend.  
+✔ **Authenticated APIs:** Require token in `Authorization` header.  
+✔ **Logout:** Delete token from the database.  
+✔ **Frontend:** Stores token in `localStorage` and sends it with requests.  
+
+---
+
+This is the **proper way to implement API-based authentication**. Let me know if you have any doubts! 🚀
